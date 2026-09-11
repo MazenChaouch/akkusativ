@@ -4,6 +4,7 @@ import {
   definiteRows, indefiniteRows, meinRows, pronounRows, possessiveArrows,
   possessiveMeanings, introFlows, einPairs, exercises,
 } from "../data/content";
+import { NOUNS, VERBS } from "../data/vocab";
 
 /* ---------- print helpers ---------- */
 const PH = ({ num, kicker, title, lede }: { num: string; kicker: string; title: ReactNode; lede: string }) => (
@@ -360,6 +361,54 @@ export const PrintWorkbook = () => (
       <div className="avoid-break" style={{ marginTop: "6mm", border: "1.2pt dashed #211b12", borderRadius: "2.5mm", padding: "3.5mm 4.5mm", fontSize: "9pt", color: "#746a58" }}>
         <b style={{ color: "#211b12" }}>Merkhilfe beim Üben:</b> Erst Subjekt oder Objekt? (Frag: Wen?/Was?) — Dann: welches Genus hat das Nomen?
         Und merke: <b style={{ color: "#e2481f" }}>nur beim Maskulinum wandert ein -n an den Artikel</b>.
+      </div>
+    </div>
+
+    {/* ============ WORTSCHATZ ============ */}
+    <div className="page-break">
+      <div style={{ fontSize: "22pt", fontFamily: "Fraunces, serif", fontWeight: 750, borderBottom: "2.4pt solid #211b12", paddingBottom: "3mm", marginBottom: "4mm" }}>
+        Wortschatz · Nomen mit Artikel
+      </div>
+      <p style={{ fontSize: "9pt", color: "#746a58", margin: "0 0 4mm" }}>
+        Der Akkusativ funktioniert nur, wenn du das Genus kennst. <b style={{ color: "#e2481f" }}>Maskuline Nomen sind rot markiert</b> —
+        genau sie ändern sich im Akkusativ (der → den).
+      </p>
+      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "8.6pt" }}>
+        <thead>
+          <tr>
+            {["Nominativ", "Akkusativ", "Plural", "English"].map((h) => (
+              <th key={h} style={{ background: "#211b12", color: "#faf6ee", textAlign: "left", padding: "1.8mm 2.5mm", fontSize: "7pt", letterSpacing: "0.12em", textTransform: "uppercase" }}>{h}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {NOUNS.map((nn) => (
+            <tr key={nn.word} className="avoid-break">
+              <td style={{ padding: "1.4mm 2.5mm", borderTop: "0.5pt solid #e3dccb", fontFamily: "Fraunces, serif", fontSize: "9.5pt", fontWeight: 650, color: nn.g === "m" ? "#b8370f" : "#211b12" }}>
+                {nn.art} {nn.word}
+              </td>
+              <td style={{ padding: "1.4mm 2.5mm", borderTop: "0.5pt solid #e3dccb", borderLeft: "0.5pt solid #e3dccb", fontFamily: "Fraunces, serif", fontSize: "9.5pt", background: nn.g === "m" ? "#fdeee8" : undefined }}>
+                {nn.g === "m" ? <b>den {nn.word}</b> : `${nn.g === "n" ? "das" : "die"} ${nn.word}`}
+              </td>
+              <td style={{ padding: "1.4mm 2.5mm", borderTop: "0.5pt solid #e3dccb", borderLeft: "0.5pt solid #e3dccb", color: "#55503f" }}>{nn.plural}</td>
+              <td style={{ padding: "1.4mm 2.5mm", borderTop: "0.5pt solid #e3dccb", borderLeft: "0.5pt solid #e3dccb", color: "#746a58", fontStyle: "italic" }}>{nn.en}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <div className="avoid-break" style={{ marginTop: "5mm", border: "0.9pt solid #211b12", borderRadius: "2.5mm", padding: "3.5mm 4.5mm" }}>
+        <div style={{ fontSize: "7.5pt", fontWeight: 800, letterSpacing: "0.16em", textTransform: "uppercase", color: "#e2481f", marginBottom: "2mm" }}>
+          Verben mit Akkusativ (transitive Verben)
+        </div>
+        <div style={{ fontSize: "9.5pt", lineHeight: 1.9 }}>
+          {(Object.keys(VERBS) as (keyof typeof VERBS & string)[]).map((v) => (
+            <span key={v} style={{ marginRight: "5mm", whiteSpace: "nowrap" }}>
+              <b style={{ fontFamily: "Fraunces, serif" }}>{VERBS[v].inf}</b>{" "}
+              <span style={{ color: "#746a58", fontStyle: "italic", fontSize: "8pt" }}>{VERBS[v].en}</span>
+            </span>
+          ))}
+        </div>
       </div>
     </div>
 

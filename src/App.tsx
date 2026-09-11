@@ -3,7 +3,7 @@ import { AnimatePresence, motion, useScroll, useSpring } from "framer-motion";
 import { BookOpen, FileDown, PenLine, Printer, X } from "lucide-react";
 import { chapters } from "./data/content";
 import { RulesPart } from "./components/RulesPart";
-import { ExercisePart } from "./components/ExercisePart";
+import { TrainingPart } from "./components/TrainingPart";
 import { PrintWorkbook } from "./components/PrintWorkbook";
 
 type Part = "regeln" | "uebungen";
@@ -89,8 +89,8 @@ export default function App() {
                     ) : (
                       <PenLine className="w-3.5 h-3.5" strokeWidth={2.6} />
                     )}
-                    <span className="hidden sm:inline">{p === "regeln" ? "1 · Regeln" : "2 · Übungen"}</span>
-                    <span className="sm:hidden">{p === "regeln" ? "Regeln" : "Übungen"}</span>
+                    <span className="hidden sm:inline">{p === "regeln" ? "1 · Regeln" : "2 · Training"}</span>
+                    <span className="sm:hidden">{p === "regeln" ? "Regeln" : "Training"}</span>
                   </button>
                 ))}
               </div>
@@ -167,7 +167,7 @@ export default function App() {
                 exit={{ opacity: 0, y: -14 }}
                 transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
               >
-                <ExercisePart onGoRules={() => goPart("regeln")} onPdf={() => setPdfOpen(true)} />
+                <TrainingPart onGoRules={() => goPart("regeln")} onPdf={() => setPdfOpen(true)} />
               </motion.div>
             )}
           </AnimatePresence>
@@ -187,7 +187,7 @@ export default function App() {
                 Teil 1 · Regeln
               </button>
               <button onClick={() => goPart("uebungen")} className="text-[11px] font-bold uppercase tracking-[0.14em] text-ink-soft hover:text-accent transition-colors cursor-pointer px-2 py-1">
-                Teil 2 · Übungen
+                Teil 2 · Training
               </button>
               <button onClick={() => setPdfOpen(true)} className="text-[11px] font-bold uppercase tracking-[0.14em] text-accent hover:text-ink transition-colors cursor-pointer px-2 py-1">
                 Als PDF speichern

@@ -83,7 +83,7 @@ const Hero = ({ onGoExercises }: { onGoExercises: () => void }) => (
           onClick={onGoExercises}
           className="inline-flex items-center gap-2.5 rounded-full border-2 border-ink bg-white/60 px-7 py-[14px] text-sm font-bold uppercase tracking-[0.14em] hover:border-accent hover:text-accent transition-colors cursor-pointer"
         >
-          <PenLine className="w-4 h-4" strokeWidth={2.6} /> Direkt zu den Übungen
+          <PenLine className="w-4 h-4" strokeWidth={2.6} /> Direkt zum Training
         </button>
       </motion.div>
 
@@ -626,13 +626,14 @@ export const RulesPart = ({ onGoExercises }: { onGoExercises: () => void }) => (
             Theorie geschafft.<br />Jetzt <span className="text-hl">beweisen</span>.
           </h3>
           <p className="relative mt-4 text-white/65 max-w-lg mx-auto">
-            10 Übungen, wild gemischt — genau wie im echten Deutsch. Jedes Mal eine Mini-Erklärung, warum die Antwort stimmt.
+            Vier Trainingsarten: der endlose Aufgaben-Generator (3 Level), der Genus-Trainer für
+            der/die/das, dein persönliches Fehler-Training und der Wortschatz — mit deutscher Aussprache.
           </p>
           <button
             onClick={onGoExercises}
             className="relative mt-8 inline-flex items-center gap-2.5 rounded-full bg-accent text-white px-8 py-4 text-sm font-bold uppercase tracking-[0.14em] hover:bg-hl hover:text-ink transition-colors cursor-pointer"
           >
-            <PenLine className="w-4 h-4" strokeWidth={2.6} /> Teil 2: Die Übungen
+            <PenLine className="w-4 h-4" strokeWidth={2.6} /> Teil 2: Zum Training
           </button>
         </div>
       </Reveal>
