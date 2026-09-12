@@ -199,7 +199,10 @@ export const ExercisePart = ({ onGoRules, onPdf }: { onGoRules: () => void; onPd
   const cardRefs = useRef<Record<number, HTMLDivElement | null>>({});
 
   useEffect(() => {
-    try { localStorage.setItem(LS_KEY, JSON.stringify(store)); } catch { /* ignore */ }
+    const t = setTimeout(() => {
+      try { localStorage.setItem(LS_KEY, JSON.stringify(store)); } catch { /* ignore */ }
+    }, 400);
+    return () => clearTimeout(t);
   }, [store]);
 
   const solvedSet = useMemo(() => new Set(store.solved), [store.solved]);
@@ -272,7 +275,7 @@ export const ExercisePart = ({ onGoRules, onPdf }: { onGoRules: () => void; onPd
             Zeig, was<br />du <span className="text-accent">kannst</span>.
           </h1>
           <p className="mt-5 text-lg text-ink-soft max-w-xl leading-relaxed">
-            Zehn Aufgaben, absichtlich wild gemischt — Artikel, Pronomen, Possessive.
+            {exercises.length} Aufgaben, absichtlich wild gemischt — Artikel, Pronomen, Possessive.
             Du entscheidest jedes Mal selbst, welche Regel gerade verlangt ist.
           </p>
         </Reveal>
@@ -299,7 +302,7 @@ export const ExercisePart = ({ onGoRules, onPdf }: { onGoRules: () => void; onPd
               ))}
             </div>
             <span className="text-sm font-semibold text-ink/70">
-              {store.solved.length}/10 gelöst
+              {store.solved.length}/{exercises.length} gelöst
             </span>
             <span className="text-sm text-ink-soft">
               · {firstTryCount} beim ersten Versuch
@@ -353,7 +356,7 @@ export const ExercisePart = ({ onGoRules, onPdf }: { onGoRules: () => void; onPd
                 <Trophy className="w-8 h-8" strokeWidth={2.2} />
               </motion.div>
               <div className="font-display text-4xl md:text-6xl font-[700]">
-                {firstTryCount}<span className="text-white/40">/10</span>
+                {firstTryCount}<span className="text-white/40">/{exercises.length}</span>
               </div>
               <div className="mt-1.5 text-[12px] font-bold uppercase tracking-[0.22em] text-hl">beim ersten Versuch</div>
               <p className="mt-5 text-white/70 max-w-md mx-auto leading-relaxed">

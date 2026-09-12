@@ -11,6 +11,9 @@ type Part = "regeln" | "uebungen";
 export default function App() {
   const [part, setPart] = useState<Part>("regeln");
   const [pdfOpen, setPdfOpen] = useState(false);
+  /* Print document mounts only on demand — it renders the full ~150-word
+     glossary table, so it stays out of the initial DOM entirely. */
+  const [printArmed, setPrintArmed] = useState(false);
   const [activeChapter, setActiveChapter] = useState("k1");
   const { scrollYProgress } = useScroll();
   const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 24, mass: 0.4 });
@@ -38,7 +41,20 @@ export default function App() {
     return () => obs.disconnect();
   }, [part]);
 
+  /* If the user prints via browser menu / Ctrl+P, mount the doc in time. */
+  useEffect(() => {
+    const onBefore = () => setPrintArmed(true);
+    const onAfter = () => setPrintArmed(false);
+    window.addEventListener("beforeprint", onBefore);
+    window.addEventListener("afterprint", onAfter);
+    return () => {
+      window.removeEventListener("beforeprint", onBefore);
+      window.removeEventListener("afterprint", onAfter);
+    };
+  }, []);
+
   const openPrint = () => {
+    setPrintArmed(true);
     setPdfOpen(false);
     setTimeout(() => window.print(), 120);
   };
@@ -255,8 +271,8 @@ export default function App() {
         </AnimatePresence>
       </div>
 
-      {/* ================= print document ================= */}
-      <PrintWorkbook />
+      {/* ================= print document (on demand only) ================= */}
+      {(pdfOpen || printArmed) && <PrintWorkbook />}
     </>
   );
 }

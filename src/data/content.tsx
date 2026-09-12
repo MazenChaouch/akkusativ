@@ -266,6 +266,30 @@ export const labQuestions: LabQ[] = [
     correct: "euer",
     why: "Neutrum ohne Änderung: euer Auto — kein -en, weil das Auto kein Mann ist.",
   },
+  {
+    pre: "Ich nehme ", post: " mit.",
+    options: ["euch", "euer"],
+    correct: "euch",
+    why: "Kein Nomen danach — „you“ selbst ist gemeint → Personalpronomen: euch.",
+  },
+  {
+    pre: "Sucht ihr ", post: " Schlüssel?",
+    options: ["euren", "euch"],
+    correct: "euren",
+    why: "Vor einem Nomen → euer (your) + maskulin Akkusativ → euren.",
+  },
+  {
+    pre: "Das ist ", post: " Geschenk.",
+    options: ["euer", "euren"],
+    correct: "euer",
+    why: "Neutrum ohne Änderung: euer Geschenk — kein -en, weil das Geschenk kein Mann ist.",
+  },
+  {
+    pre: "Wir suchen ", post: " und eure Fahrkarten.",
+    options: ["euch", "euer"],
+    correct: "euch",
+    why: "Die Personen selbst → euch. „Euer“ braucht immer ein Nomen danach — hier steht es allein.",
+  },
 ];
 
 /* ---------- comparison tables (ch.8) ---------- */
@@ -429,6 +453,58 @@ export const exercises: Exercise[] = [
     solution: "Ihr sucht eure Katze.",
     tip: "euer verhält sich wie „ein“. die Katze ist feminin — also kein -en.",
     why: <>Possessiv vor Nomen: <B>euer</B> („your“) + <B>feminin</B> → <B>eure</B>. Nur Maskulin würde <B>euren</B> bekommen.</>,
+  },
+  {
+    n: 11,
+    segments: [
+      { kind: "text", text: "Ich mag " },
+      { kind: "blank", id: "a" },
+      { kind: "text", text: " Tee am Morgen." },
+    ],
+    cue: "(mein)",
+    blanks: [{ id: "a", answers: ["meinen"] }],
+    solution: "Ich mag meinen Tee am Morgen.",
+    tip: "der Tee ist maskulin — und mögen braucht genau wie sehen ein Akkusativ-Objekt.",
+    why: <>„der Tee“ ist <B>maskulin</B>, Akkusativ → <B>mein → meinen</B>. Auch Gefühlsverben wie <B>mögen</B> regieren den Akkusativ.</>,
+  },
+  {
+    n: 12,
+    segments: [
+      { kind: "text", text: "Wir kochen " },
+      { kind: "blank", id: "a" },
+      { kind: "text", text: " Suppe." },
+    ],
+    cue: "(unser)",
+    blanks: [{ id: "a", answers: ["unsere"] }],
+    solution: "Wir kochen unsere Suppe.",
+    tip: "die Suppe ist feminin — feminin bleibt immer gleich, auch beim Kochen.",
+    why: <>„die Suppe“ ist <B>feminin</B> — im Akkusativ unverändert: <B>unser + e → unsere</B> (kein -en, das gibt es nur im Maskulinum).</>,
+  },
+  {
+    n: 13,
+    segments: [
+      { kind: "text", text: "Nimmst du " },
+      { kind: "blank", id: "a" },
+      { kind: "text", text: " Koffer mit?" },
+    ],
+    cue: "(dein)",
+    blanks: [{ id: "a", answers: ["deinen"] }],
+    solution: "Nimmst du deinen Koffer mit?",
+    tip: "der Koffer ist maskulin — Fragen ändern an der Regel nichts.",
+    why: <>„der Koffer“ ist <B>maskulin</B> und steht als Objekt im Akkusativ → <B>dein → deinen</B>, auch in der Frage.</>,
+  },
+  {
+    n: 14,
+    segments: [
+      { kind: "text", text: "Ich koche heute " },
+      { kind: "blank", id: "a" },
+      { kind: "text", text: " Nudeln." },
+    ],
+    cue: "(die)",
+    blanks: [{ id: "a", answers: ["die"] }],
+    solution: "Ich koche heute die Nudeln.",
+    tip: "Nudeln ist Plural — und Plural verhält sich wie „die“: keine Änderung.",
+    why: <>„die Nudeln“ ist <B>Plural</B> — im Akkusativ unverändert: <B>die → die</B>. Nur das Maskulinum bekommt das kleine n.</>,
   },
 ];
 

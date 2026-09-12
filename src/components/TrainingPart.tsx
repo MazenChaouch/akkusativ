@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowUpRight, BookOpen, ChevronDown, Dices, GraduationCap, Layers,
@@ -34,6 +34,7 @@ type Persist = {
 };
 
 const LS_KEY = "akkusativ-training-v2";
+const VOCAB_PAGE = 48;
 const newSeed = () => Math.floor(Math.random() * 1e9) + 1;
 
 const emptyPersist = (): Persist => ({
@@ -118,8 +119,13 @@ export const TrainingPart = ({ onGoRules }: { onGoRules: () => void; onPdf: () =
     [persist.mistakes]
   );
 
+  /* Throttled persist: every keystroke updates `persist`, but the JSON
+     write only happens 400ms after the last change. */
   useEffect(() => {
-    try { localStorage.setItem(LS_KEY, JSON.stringify(persist)); } catch { /* ignore */ }
+    const t = setTimeout(() => {
+      try { localStorage.setItem(LS_KEY, JSON.stringify(persist)); } catch { /* ignore */ }
+    }, 400);
+    return () => clearTimeout(t);
   }, [persist]);
 
   const solvedSet = useMemo(() => new Set(persist.solved), [persist.solved]);
@@ -224,15 +230,20 @@ export const TrainingPart = ({ onGoRules }: { onGoRules: () => void; onPdf: () =
     return entries[0].pct < 0.8 ? entries[0] : null;
   }, [persist.byCat]);
 
-  /* -------- vocab filter -------- */
+  /* -------- vocab filter + pagination --------
+     Deferred query keeps typing smooth; only one page of cards is in the
+     DOM at a time (~150 words would otherwise all mount at once). */
+  const deferredQuery = useDeferredValue(query);
+  const [vocabShown, setVocabShown] = useState(VOCAB_PAGE);
+  useEffect(() => { setVocabShown(VOCAB_PAGE); }, [deferredQuery, vocabGender]);
   const vocabList = useMemo(() => {
-    const q = query.trim().toLowerCase();
+    const q = deferredQuery.trim().toLowerCase();
     return NOUNS.filter((n) => {
       if (vocabGender !== "alle" && n.g !== vocabGender) return false;
       if (!q) return true;
       return n.word.toLowerCase().includes(q) || n.en.toLowerCase().includes(q) || n.topic.toLowerCase().includes(q);
     });
-  }, [query, vocabGender]);
+  }, [deferredQuery, vocabGender]);
 
   const say = (t: string) => speak(cleanForSpeech(t));
 
@@ -633,8 +644,12 @@ export const TrainingPart = ({ onGoRules }: { onGoRules: () => void; onPdf: () =
                 </div>
               </Reveal>
 
+              <p className="text-[12px] text-ink-soft mb-3">
+                {vocabList.length} {vocabList.length === 1 ? "Wort" : "Wörter"}
+                {deferredQuery.trim() || vocabGender !== "alle" ? " gefunden" : " im Buch"} — diese Wörter benutzt auch der Generator.
+              </p>
               <div className="grid sm:grid-cols-2 gap-3">
-                {vocabList.map((n) => (
+                {vocabList.slice(0, vocabShown).map((n) => (
                   <div
                     key={n.word}
                     className={`rounded-2xl border-2 p-4 transition-colors ${
@@ -676,6 +691,17 @@ export const TrainingPart = ({ onGoRules }: { onGoRules: () => void; onPdf: () =
 
               {vocabList.length === 0 && (
                 <p className="text-center text-ink-soft py-12">Kein Wort gefunden — probier einen anderen Suchbegriff.</p>
+              )}
+
+              {vocabShown < vocabList.length && (
+                <div className="mt-5 text-center">
+                  <button
+                    onClick={() => setVocabShown((v) => v + VOCAB_PAGE)}
+                    className="inline-flex items-center gap-2 rounded-full border-2 border-ink px-7 py-3 text-[12px] font-bold uppercase tracking-[0.14em] hover:bg-ink hover:text-paper transition-colors cursor-pointer"
+                  >
+                    Mehr zeigen ({vocabList.length - vocabShown} übrig)
+                  </button>
+                </div>
               )}
 
               {/* verbs */}

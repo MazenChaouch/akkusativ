@@ -16,6 +16,7 @@ const load = (): GenusStats => {
 
 /** Singular nouns only — plural entries have no der/die/das choice to train. */
 const TRAINABLE = NOUNS.filter((n) => n.g !== "pl");
+const NOUN_BY_WORD = new Map(TRAINABLE.map((n) => [n.word, n] as const));
 
 export const GenusTrainer = ({
   onSpeak, audio,
@@ -39,7 +40,10 @@ export const GenusTrainer = ({
       for (const n of pool) {
         const s = stats[n.word] ?? { right: 0, wrong: 0 };
         const weight = 1 + s.wrong * 2 - Math.min(s.right, 2) * 0.3;
-        for (let i = 0; i < Math.max(1, Math.round(weight)); i++) weighted.push(n);
+        /* Cap copies per word so a large pool with many mistakes can't
+           blow up the shuffled array. */
+        const copies = Math.max(1, Math.min(4, Math.round(weight)));
+        for (let i = 0; i < copies; i++) weighted.push(n);
       }
       for (let i = weighted.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -57,7 +61,10 @@ export const GenusTrainer = ({
   }, [topic]);
 
   useEffect(() => {
-    try { localStorage.setItem(LS, JSON.stringify(stats)); } catch { /* ignore */ }
+    const t = setTimeout(() => {
+      try { localStorage.setItem(LS, JSON.stringify(stats)); } catch { /* ignore */ }
+    }, 400);
+    return () => clearTimeout(t);
   }, [stats]);
 
   const current = queue[0];
@@ -99,7 +106,7 @@ export const GenusTrainer = ({
         .filter(([, v]) => v.wrong > 0)
         .sort((a, b) => b[1].wrong - a[1].wrong)
         .slice(0, 6)
-        .map(([w, v]) => ({ word: w, ...v, art: NOUNS.find((n) => n.word === w)?.art ?? "" })),
+        .map(([w, v]) => ({ word: w, ...v, art: NOUN_BY_WORD.get(w)?.art ?? "" })),
     [stats]
   );
 

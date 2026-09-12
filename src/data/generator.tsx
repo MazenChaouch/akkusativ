@@ -35,9 +35,14 @@ const SUBJECTS: Subject[] = [
   { t: "Sie", f: "er", person: "sie", en: "She", third: true },
   { t: "Anna", f: "er", person: "sie", en: "Anna", third: true },
   { t: "Tom", f: "er", person: "er", en: "Tom", third: true },
+  { t: "Oma", f: "er", person: "sie", en: "Grandma", third: true },
+  { t: "Opa", f: "er", person: "er", en: "Grandpa", third: true },
+  { t: "Mama", f: "er", person: "sie", en: "Mum", third: true },
+  { t: "Papa", f: "er", person: "er", en: "Dad", third: true },
   { t: "Wir", f: "wir", person: "wir", en: "We", third: false },
   { t: "Ihr", f: "ihr", person: "ihr", en: "You (guys)", third: false },
   { t: "Die Kinder", f: "sie", person: "sie.pl", en: "The children", third: false },
+  { t: "Die Familie", f: "sie", person: "sie.pl", en: "The family", third: false },
 ];
 
 /* ================= English helpers (verified by hand) ================= */
@@ -52,6 +57,12 @@ const V_EN: Record<VerbId, [string, string]> = {
   essen: ["eat", "eats"],
   besuchen: ["visit", "visits"],
   kennen: ["know", "knows"],
+  nehmen: ["take", "takes"],
+  machen: ["make", "makes"],
+  mögen: ["like", "likes"],
+  lieben: ["love", "loves"],
+  kochen: ["cook", "cooks"],
+  hören: ["hear", "hears"],
 };
 const POSS_EN_SHORT: Record<PossStem, string> = {
   mein: "my", dein: "your", sein: "his", ihr: "her/their", unser: "our", euer: "your",
@@ -287,8 +298,12 @@ const tIstSehe = (c: BuilderCtx): GenExercise => {
 };
 
 /* --- possessive + pronoun replacement --- */
+const COMBINE_LEADS: VerbId[] = ["suchen", "nehmen"];
 const tCombine = (c: BuilderCtx): GenExercise => {
-  const noun = c.drawNoun((n) => !n.noPoss && n.verbs.includes("suchen"));
+  const noun = c.drawNoun((n) => !n.noPoss && n.verbs.some((v) => COMBINE_LEADS.includes(v)));
+  const lead: VerbId = noun.verbs.includes("suchen") && (!noun.verbs.includes("nehmen") || c.rng() < 0.6)
+    ? "suchen"
+    : "nehmen";
   const subj = pick(c.rng, SUBJECTS.filter((s) => s.person !== "ihr"));
   const stem = pick(c.rng, POSSESSIVES);
   const a1 = possForm(stem, noun.g, "akk");
@@ -299,13 +314,13 @@ const tCombine = (c: BuilderCtx): GenExercise => {
   return {
     uid: "", n: c.n, cat: "mixed", gender: noun.g,
     segments: [
-      seg(`${subj.t} ${VERBS.suchen.forms[subj.f]} `), blk("a"),
+      seg(`${subj.t} ${VERBS[lead].forms[subj.f]} `), blk("a"),
       seg(` ${noun.word}, aber ${p2} ${fv} `), blk("b"), seg(" nicht."),
     ],
     cue: `(${stem} · ${noun.art} ${noun.word})`,
     blanks: [{ id: "a", answers: [a1] }, { id: "b", answers: [a2] }],
-    solution: `${subj.t} ${VERBS.suchen.forms[subj.f]} ${a1} ${noun.word}, aber ${p2} ${fv} ${a2} nicht.`,
-    en: `${subj.en} ${enVerb("suchen", subj)} ${enPoss(stem, noun)}, but ${enMid(subj)} ${subj.third ? "doesn't" : "don't"} find ${enPron}.`,
+    solution: `${subj.t} ${VERBS[lead].forms[subj.f]} ${a1} ${noun.word}, aber ${p2} ${fv} ${a2} nicht.`,
+    en: `${subj.en} ${enVerb(lead, subj)} ${enPoss(stem, noun)}, but ${enMid(subj)} ${subj.third ? "doesn't" : "don't"} find ${enPron}.`,
     tip: "Lücke 1: Possessiv + Nomen. Lücke 2: Ersetze das Nomen durch ein Pronomen (ihn/sie/es).",
     why: <>
       Lücke 1: <B>{G_NAME[noun.g]}</B> + Akkusativ → <B>{a1}</B>. Lücke 2:{" "}
@@ -340,6 +355,27 @@ const tIhrEuch = (c: BuilderCtx): GenExercise => {
       en: "We visit you (guys) and your parents.",
       why: <><B>euch</B> = Personalpronomen. <B>eure</B> = euer + Plural („die Eltern") — kein -en, weil kein Maskulinum.</>,
     },
+    {
+      segs: [seg("Ich nehme "), blk("a"), seg(" mit und "), blk("b"), seg(" Koffer.")],
+      a: "euch", b: "euren",
+      sol: "Ich nehme euch mit und euren Koffer.",
+      en: "I'll take you (guys) along and your suitcase.",
+      why: <><B>euch</B> = die Personen selbst (Pronomen). <B>euren</B> = „your" vor dem maskulinen Nomen „Koffer" im Akkusativ.</>,
+    },
+    {
+      segs: [seg("Ich kaufe "), blk("a"), seg(" "), blk("b"), seg(" Geschenk.")],
+      a: "euch", b: "euer",
+      sol: "Ich kaufe euch euer Geschenk.",
+      en: "I'll buy you (guys) your present.",
+      why: <><B>euch</B> = Personalpronomen. <B>euer</B> = euer + Neutrum („das Geschenk") — kein -en, weil kein Maskulinum.</>,
+    },
+    {
+      segs: [seg("Wir suchen "), blk("a"), seg(" und "), blk("b"), seg(" Fahrkarten.")],
+      a: "euch", b: "eure",
+      sol: "Wir suchen euch und eure Fahrkarten.",
+      en: "We're looking for you (guys) and your tickets.",
+      why: <><B>euch</B> = Personalpronomen. <B>eure</B> = euer + Plural („die Fahrkarten") — kein -en, weil kein Maskulinum.</>,
+    },
   ];
   const v = pick(c.rng, variants);
   return {
@@ -369,7 +405,16 @@ export const LEVELS: { id: Level; name: string; desc: string; focus: string }[] 
 
 export const ROUND_SIZE = 5;
 
+/* Rounds are deterministic per (seed, level), so cache them: the review
+   queue re-requests the same rounds up to 40× per render and must not
+   re-shuffle every time. Capped FIFO map keeps memory bounded. */
+const roundCache = new Map<string, GenExercise[]>();
+const ROUND_CACHE_MAX = 80;
+
 export function generateRound(seed: number, level: Level): GenExercise[] {
+  const cacheKey = `${seed}-l${level}`;
+  const cached = roundCache.get(cacheKey);
+  if (cached) return cached;
   const rng = mulberry32(seed * 7919 + level * 104729);
   const pool = shuffle(rng, NOUNS.map((_, i) => i));
   let pi = 0;
@@ -408,12 +453,18 @@ export function generateRound(seed: number, level: Level): GenExercise[] {
             (c) => tPossHard(c),
           ];
 
-  return builders.map((b, idx) => {
+  const round = builders.map((b, idx) => {
     const ex = b(mk(idx + 1));
     ex.uid = `s${seed}-l${level}-i${idx}`;
     ex.n = idx + 1;
     return ex;
   });
+  if (roundCache.size >= ROUND_CACHE_MAX) {
+    const oldest = roundCache.keys().next().value;
+    if (oldest !== undefined) roundCache.delete(oldest);
+  }
+  roundCache.set(cacheKey, round);
+  return round;
 }
 
 /** Regenerate one specific exercise (used by the mistake-review queue). */
