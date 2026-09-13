@@ -5,6 +5,8 @@ import { chapters } from "./data/content";
 import { RulesPart } from "./components/RulesPart";
 import { TrainingPart } from "./components/TrainingPart";
 import { PrintWorkbook } from "./components/PrintWorkbook";
+import { SettingsPanel } from "./components/SettingsPanel";
+import { SettingsProvider } from "./hooks/useSettings";
 
 type Part = "regeln" | "uebungen";
 
@@ -60,7 +62,7 @@ export default function App() {
   };
 
   return (
-    <>
+    <SettingsProvider>
       {/* ================= screen app ================= */}
       <div className="no-print min-h-screen">
         {/* scroll progress */}
@@ -110,6 +112,9 @@ export default function App() {
                   </button>
                 ))}
               </div>
+
+              {/* settings */}
+              <SettingsPanel />
 
               {/* pdf button */}
               <button
@@ -273,6 +278,6 @@ export default function App() {
 
       {/* ================= print document (on demand only) ================= */}
       {(pdfOpen || printArmed) && <PrintWorkbook />}
-    </>
+    </SettingsProvider>
   );
 }

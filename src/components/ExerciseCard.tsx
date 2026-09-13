@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, Check, Languages, Lightbulb, Volume2 } from "lucide-react";
 import type { GenExercise } from "../data/generator";
 import { cleanForSpeech } from "../hooks/useSpeech";
+import { maskArticles, useSettings } from "../hooks/useSettings";
 
 export type Mark = "idle" | "correct" | "wrong";
 export const blankKey = (uid: string, id: string) => `${uid}:${id}`;
@@ -41,6 +42,12 @@ export const ExerciseCard = ({
   const markList = ex.blanks.map((b) => marks[blankKey(ex.uid, b.id)] ?? "idle");
   const anyWrong = markList.includes("wrong");
   const allFilled = ex.blanks.every((b) => norm(values[blankKey(ex.uid, b.id)] ?? "") !== "");
+  const { settings } = useSettings();
+  const cue = settings.hideArticles ? maskArticles(ex.cue) : ex.cue;
+  const showTipCta = !settings.hideTips;
+  const showEnCta = !settings.hideEnglish;
+  const tipVisible = tipOpen && !settings.hideTips;
+  const enVisible = showEn && !settings.hideEnglish;
 
   return (
     <div
@@ -107,7 +114,7 @@ export const ExerciseCard = ({
               })}
               <span className="ml-2 align-middle">
                 <span className="text-[12px] font-sans font-semibold text-ink-soft bg-paper-deep/80 border border-line rounded-full px-3 py-1 whitespace-nowrap">
-                  {ex.cue}
+                  {cue}
                 </span>
               </span>
             </div>
@@ -134,26 +141,30 @@ export const ExerciseCard = ({
                 </button>
               )}
 
-              <button
-                type="button"
-                onClick={() => onToggleTip(ex.uid)}
-                className={`inline-flex items-center gap-2 rounded-full border-2 px-4 py-2 text-[12px] font-bold uppercase tracking-[0.14em] transition-colors cursor-pointer ${
-                  tipOpen ? "border-hl bg-hl/30 text-ink" : "border-line text-ink-soft hover:border-ink/40"
-                }`}
-              >
-                <Lightbulb className="w-4 h-4" strokeWidth={2.4} /> Tipp
-              </button>
+              {showTipCta && (
+                <button
+                  type="button"
+                  onClick={() => onToggleTip(ex.uid)}
+                  className={`inline-flex items-center gap-2 rounded-full border-2 px-4 py-2 text-[12px] font-bold uppercase tracking-[0.14em] transition-colors cursor-pointer ${
+                    tipOpen ? "border-hl bg-hl/30 text-ink" : "border-line text-ink-soft hover:border-ink/40"
+                  }`}
+                >
+                  <Lightbulb className="w-4 h-4" strokeWidth={2.4} /> Tipp
+                </button>
+              )}
 
-              <button
-                type="button"
-                onClick={() => onToggleEn(ex.uid)}
-                className={`inline-flex items-center gap-2 rounded-full border-2 px-4 py-2 text-[12px] font-bold uppercase tracking-[0.14em] transition-colors cursor-pointer ${
-                  showEn ? "border-ink bg-ink text-paper" : "border-line text-ink-soft hover:border-ink/40"
-                }`}
-                title="Englische Übersetzung"
-              >
-                <Languages className="w-4 h-4" strokeWidth={2.4} /> EN
-              </button>
+              {showEnCta && (
+                <button
+                  type="button"
+                  onClick={() => onToggleEn(ex.uid)}
+                  className={`inline-flex items-center gap-2 rounded-full border-2 px-4 py-2 text-[12px] font-bold uppercase tracking-[0.14em] transition-colors cursor-pointer ${
+                    showEn ? "border-ink bg-ink text-paper" : "border-line text-ink-soft hover:border-ink/40"
+                  }`}
+                  title="Englische Übersetzung"
+                >
+                  <Languages className="w-4 h-4" strokeWidth={2.4} /> EN
+                </button>
+              )}
 
               {audio && solved && (
                 <button
@@ -175,7 +186,7 @@ export const ExerciseCard = ({
           </form>
 
           <AnimatePresence>
-            {showEn && (
+            {enVisible && (
               <motion.p
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
@@ -185,7 +196,7 @@ export const ExerciseCard = ({
                 <span className="block pt-3">{ex.en}</span>
               </motion.p>
             )}
-            {tipOpen && !solved && (
+            {tipVisible && !solved && (
               <motion.p
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}

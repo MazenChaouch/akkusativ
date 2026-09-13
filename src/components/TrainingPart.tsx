@@ -9,6 +9,7 @@ import { generateRound, LEVELS, ROUND_SIZE } from "../data/generator";
 import { G_NAME, NOUNS, VERBS } from "../data/vocab";
 import type { Gender } from "../data/vocab";
 import { useSpeech, cleanForSpeech } from "../hooks/useSpeech";
+import { maskArticles, useSettings } from "../hooks/useSettings";
 import { ExerciseCard, blankKey, norm } from "./ExerciseCard";
 import type { Mark } from "./ExerciseCard";
 import { GenusTrainer } from "./GenusTrainer";
@@ -104,6 +105,7 @@ export const TrainingPart = ({ onGoRules }: { onGoRules: () => void; onPdf: () =
   const [vocabGender, setVocabGender] = useState<string>("alle");
   const cardRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const { speak, supported, enabled, setEnabled } = useSpeech();
+  const { settings } = useSettings();
 
   const { level, seed } = persist;
   const exercises = useMemo(() => generateRound(seed, level), [seed, level]);
@@ -659,9 +661,11 @@ export const TrainingPart = ({ onGoRules }: { onGoRules: () => void; onPdf: () =
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <div className="font-display text-xl font-[680]">
-                          <span className={n.g === "m" ? "text-accent" : "text-ink/55"}>{n.art}</span> {n.word}
+                          <span className={n.g === "m" ? "text-accent" : "text-ink/55"}>{settings.hideArticles ? "___" : n.art}</span> {n.word}
                         </div>
-                        <div className="text-[13px] text-ink-soft">{n.en}</div>
+                        {!settings.hideEnglish && (
+                          <div className="text-[13px] text-ink-soft">{n.en}</div>
+                        )}
                       </div>
                       {supported && enabled && (
                         <button
@@ -677,12 +681,12 @@ export const TrainingPart = ({ onGoRules }: { onGoRules: () => void; onPdf: () =
                       <div>
                         <span className="block text-[9.5px] font-bold uppercase tracking-[0.14em] text-ink-soft">Akkusativ</span>
                         <span className="font-display text-[15px] font-[650]">
-                          {n.g === "m" ? <>Ich sehe <span className="text-accent">den</span> {n.word}</> : `Ich sehe ${n.g === "n" ? "das" : "die"} ${n.word}`}
+                          {n.g === "m" ? <>Ich sehe <span className="text-accent">{settings.hideArticles ? "___" : "den"}</span> {n.word}</> : `Ich sehe ${settings.hideArticles ? "___" : (n.g === "n" ? "das" : "die")} ${n.word}`}
                         </span>
                       </div>
                       <div>
                         <span className="block text-[9.5px] font-bold uppercase tracking-[0.14em] text-ink-soft">Plural</span>
-                        <span className="font-display text-[15px] font-[650]">{n.plural}</span>
+                        <span className="font-display text-[15px] font-[650]">{settings.hideArticles ? maskArticles(n.plural) : n.plural}</span>
                       </div>
                     </div>
                   </div>
