@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { RotateCcw, Settings2, X } from "lucide-react";
 import { useSettings } from "../hooks/useSettings";
@@ -67,10 +68,14 @@ export const SettingsPanel = () => {
         )}
       </button>
 
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0 }}
+      {/* Portaled to body: the header has backdrop-blur, which would trap
+          a `fixed` dialog inside the header strip and cut it off. */}
+      {typeof document !== "undefined" &&
+        createPortal(
+          <AnimatePresence>
+            {open && (
+              <motion.div
+                initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-ink/45 backdrop-blur-sm"
@@ -139,10 +144,12 @@ export const SettingsPanel = () => {
               >
                 <RotateCcw className="w-4 h-4" strokeWidth={2.5} /> Alles zurücksetzen
               </button>
+              </motion.div>
             </motion.div>
-          </motion.div>
+          )}
+          </AnimatePresence>,
+          document.body
         )}
-      </AnimatePresence>
     </>
   );
 };
