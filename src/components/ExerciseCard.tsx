@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, Check, Languages, Lightbulb, Volume2 } from "lucide-react";
 import type { GenExercise } from "../data/generator";
 import { cleanForSpeech } from "../hooks/useSpeech";
-import { maskArticles, useSettings } from "../hooks/useSettings";
+import { stripArticles, useSettings } from "../hooks/useSettings";
 
 export type Mark = "idle" | "correct" | "wrong";
 export const blankKey = (uid: string, id: string) => `${uid}:${id}`;
@@ -43,7 +43,7 @@ export const ExerciseCard = ({
   const anyWrong = markList.includes("wrong");
   const allFilled = ex.blanks.every((b) => norm(values[blankKey(ex.uid, b.id)] ?? "") !== "");
   const { settings } = useSettings();
-  const cue = settings.hideArticles ? maskArticles(ex.cue) : ex.cue;
+  const cue = settings.hideArticles ? stripArticles(ex.cue) : ex.cue;
   const showTipCta = !settings.hideTips;
   const showEnCta = !settings.hideEnglish;
   const tipVisible = tipOpen && !settings.hideTips;
@@ -112,11 +112,13 @@ export const ExerciseCard = ({
                   />
                 );
               })}
-              <span className="ml-2 align-middle">
-                <span className="text-[12px] font-sans font-semibold text-ink-soft bg-paper-deep/80 border border-line rounded-full px-3 py-1 whitespace-nowrap">
-                  {cue}
+              {cue !== "" && (
+                <span className="ml-2 align-middle">
+                  <span className="text-[12px] font-sans font-semibold text-ink-soft bg-paper-deep/80 border border-line rounded-full px-3 py-1 whitespace-nowrap">
+                    {cue}
+                  </span>
                 </span>
-              </span>
+              )}
             </div>
 
             <div className="mt-4 flex flex-wrap items-center gap-2.5">

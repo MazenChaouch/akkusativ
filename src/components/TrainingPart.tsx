@@ -9,7 +9,7 @@ import { generateRound, LEVELS, ROUND_SIZE } from "../data/generator";
 import { G_NAME, NOUNS, VERBS } from "../data/vocab";
 import type { Gender } from "../data/vocab";
 import { useSpeech, cleanForSpeech } from "../hooks/useSpeech";
-import { maskArticles, useSettings } from "../hooks/useSettings";
+import { Art, stripArticles, useSettings } from "../hooks/useSettings";
 import { ExerciseCard, blankKey, norm } from "./ExerciseCard";
 import type { Mark } from "./ExerciseCard";
 import { GenusTrainer } from "./GenusTrainer";
@@ -661,7 +661,7 @@ export const TrainingPart = ({ onGoRules }: { onGoRules: () => void; onPdf: () =
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <div className="font-display text-xl font-[680]">
-                          <span className={n.g === "m" ? "text-accent" : "text-ink/55"}>{settings.hideArticles ? "___" : n.art}</span> {n.word}
+                          <Art className={n.g === "m" ? "text-accent" : "text-ink/55"}>{n.art}</Art>{n.word}
                         </div>
                         {!settings.hideEnglish && (
                           <div className="text-[13px] text-ink-soft">{n.en}</div>
@@ -681,12 +681,14 @@ export const TrainingPart = ({ onGoRules }: { onGoRules: () => void; onPdf: () =
                       <div>
                         <span className="block text-[9.5px] font-bold uppercase tracking-[0.14em] text-ink-soft">Akkusativ</span>
                         <span className="font-display text-[15px] font-[650]">
-                          {n.g === "m" ? <>Ich sehe <span className="text-accent">{settings.hideArticles ? "___" : "den"}</span> {n.word}</> : `Ich sehe ${settings.hideArticles ? "___" : (n.g === "n" ? "das" : "die")} ${n.word}`}
+                          {n.g === "m"
+                            ? (<>Ich sehe <Art className="text-accent">den</Art>{n.word}</>)
+                            : (<>Ich sehe <Art>{n.g === "n" ? "das" : "die"}</Art>{n.word}</>)}
                         </span>
                       </div>
                       <div>
                         <span className="block text-[9.5px] font-bold uppercase tracking-[0.14em] text-ink-soft">Plural</span>
-                        <span className="font-display text-[15px] font-[650]">{settings.hideArticles ? maskArticles(n.plural) : n.plural}</span>
+                        <span className="font-display text-[15px] font-[650]">{settings.hideArticles ? stripArticles(n.plural) : n.plural}</span>
                       </div>
                     </div>
                   </div>

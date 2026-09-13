@@ -3,12 +3,11 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Check, MousePointerClick, Sparkles, Users, KeyRound, X } from "lucide-react";
 import { chains, focusPairs, labQuestions, playgroundNouns } from "../data/content";
 import { Reveal, HL } from "./Atoms";
-import { useSettings } from "../hooks/useSettings";
+import { Art } from "../hooks/useSettings";
 
 /* ============ 1) Gender Playground: watch the article change ============ */
 export const GenderPlayground = () => {
   const [sel, setSel] = useState(0);
-  const { settings } = useSettings();
   const noun = playgroundNouns[sel];
 
   return (
@@ -32,7 +31,7 @@ export const GenderPlayground = () => {
                   : "bg-white/70 border-line hover:border-ink/40"
               }`}
             >
-              {settings.hideArticles ? "___" : n.article} {n.noun}
+              <Art>{n.article}</Art>{n.noun}
             </button>
           ))}
         </div>

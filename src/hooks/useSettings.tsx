@@ -67,8 +67,20 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
 
 export const useSettings = () => useContext(SettingsCtx);
 
-/* Articles masked in hard mode. Possessives (mein/dein/…) and pronouns
-   stay visible — otherwise exercises would become unsolvable. */
-const ART_RE = /\b(der|die|das|den|dem|ein|eine|einen|einem|einer)\b/gi;
+/* Articles removed entirely in hard mode ("der Hund" → "Hund").
+   Possessives (mein/dein/…) and pronouns stay — otherwise exercises
+   would become unsolvable. Leftover empty brackets are dropped too,
+   so a cue like "(ein)" removes the whole hint chip. */
+const ART_RE = /\b(der|die|das|den|dem|ein|eine|einen|einem|einer)\b\s?/gi;
 
-export const maskArticles = (text: string): string => text.replace(ART_RE, "___");
+export const stripArticles = (text: string): string =>
+  text.replace(ART_RE, "").replace(/\s+/g, " ").replace(/\(\s*\)/g, "").trim();
+
+/* Article wrapper that vanishes entirely in hard mode.
+   <Art>{article}</Art>{noun} renders "der Hund" normally,
+   and just "Hund" when articles are hidden. */
+export const Art = ({ children, className }: { children: ReactNode; className?: string }) => {
+  const { settings } = useSettings();
+  if (settings.hideArticles) return null;
+  return <span className={className}>{children}{" "}</span>;
+};
